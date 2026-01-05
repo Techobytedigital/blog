@@ -3,6 +3,26 @@
 [!WARNING]
 This documentation is most likely incomplete. If I ever feel like this site is "well documented," I'll remove this message.
 
+## Creating new content pages
+
+Content served on the site is stored in the [`content/' directory](../content). While you can manually create directories (pages) and Markdown files (pages), it's easier to use Hugo for this:
+
+```shell
+hugo new <folder-name>/<file-name>.md
+```
+
+For example, to create a new [post](../content/posts) named `example.md`:
+
+```shell
+hugo new post/example.md
+```
+
+If you're creating a new page based on an existing [archetype](../archetypes), can use:
+
+```shell
+hugo new --kind <archetype> <name>
+```
+
 ## Serving the site for development
 
 Serve on `localhost:1313`:
