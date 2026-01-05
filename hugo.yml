@@ -46,6 +46,9 @@ params:
   DateFormat: "2006-01-02"
   defaultTheme: auto
   disableThemeToggle: false
+  ## Controls which folder/section posts appear on home page
+  mainSections:
+    - posts
 
   ShowReadingTime: true
   ShowShareButtons: false
@@ -115,6 +118,7 @@ params:
     limit: 10
     keys: ["title", "permalink", "summary", "content"]
 
+pygmentsUseClasses: true
 markup:
   highlight:
     codeFences: true
