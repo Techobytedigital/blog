@@ -65,6 +65,7 @@ params:
 
   assets:
     disableFingerprinting: true
+    disableHLJS: true
     # favicon: "<link / abs url>"
     # favicon16x16: "<link / abs url>"
     # favicon32x32: "<link / abs url>"
@@ -113,3 +114,10 @@ params:
     ## docs: https://www.fusejs.io/api/methods.html#search
     limit: 10
     keys: ["title", "permalink", "summary", "content"]
+
+markup:
+  highlight:
+    codeFences: true
+    guessSyntax: true
+    lineNos: true
+    style: monokai
