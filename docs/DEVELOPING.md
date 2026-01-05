@@ -1,7 +1,7 @@
 # Development Documentation
 
-[!WARNING]
-This documentation is most likely incomplete. If I ever feel like this site is "well documented," I'll remove this message.
+> [!WARNING]
+> This documentation is most likely incomplete. If I ever feel like this site is "well documented," I'll remove this message.
 
 ## Creating new content pages
 
