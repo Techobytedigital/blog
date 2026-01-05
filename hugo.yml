@@ -24,6 +24,17 @@ menu:
       url: /tags/
       weight: 40
 
+    - identifier: archive
+      name: archive
+      url: /archive/
+      weight: 50
+
+outputs:
+  home:
+    - HTML
+    - RSS
+    - JSON
+
 module:
   imports:
     - path: github.com/adityatelange/hugo-PaperMod
