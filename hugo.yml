@@ -24,9 +24,9 @@ menu:
       url: /tags/
       weight: 40
 
-    - identifier: archive
-      name: archive
-      url: /archive/
+    - identifier: search
+      name: search
+      url: /search/
       weight: 50
 
 outputs:
