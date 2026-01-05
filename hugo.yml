@@ -9,15 +9,20 @@ menu:
       url: /posts/
       weight: 10
 
+    - identifier: notes
+      name: notes
+      url: /notes/
+      weight: 20
+
     - identifier: categories
       name: categories
       url: /categories/
-      weight: 20
+      weight: 30
 
     - identifier: tags
       name: tags
       url: /tags/
-      weight: 30
+      weight: 40
 
 module:
   imports:
@@ -47,8 +52,8 @@ params:
   defaultTheme: auto
   disableThemeToggle: false
   ## Controls which folder/section posts appear on home page
-  mainSections:
-    - posts
+  # mainSections:
+  #   - posts
 
   ShowReadingTime: true
   ShowShareButtons: false
@@ -98,7 +103,7 @@ params:
     Title: "Welcome to Techobyte"
     Content: a personal blog about technology & computing
 
-  socialiconss:
+  socialIcons:
     - name: github
       url: https://github.com/TechobyteDigital
 
@@ -121,7 +126,6 @@ params:
 pygmentsUseClasses: true
 markup:
   highlight:
-    noClasses: true
     codeFences: true
     guessSyntax: true
     lineNos: true
