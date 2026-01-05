@@ -29,6 +29,11 @@ menu:
       url: /search/
       weight: 50
 
+    - identifier: archive
+      name: archive
+      url: /archive/
+      weight: 60
+
 outputs:
   home:
     - HTML
