@@ -1,0 +1,3 @@
+[tools]
+hugo-extended = "0.152.2"
+direnv = "latest"
