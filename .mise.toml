@@ -1,3 +1,4 @@
 [tools]
 hugo-extended = "0.152.2"
+go = "1.25.5"
 direnv = "latest"
