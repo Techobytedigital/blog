@@ -121,6 +121,7 @@ params:
 pygmentsUseClasses: true
 markup:
   highlight:
+    noClasses: true
     codeFences: true
     guessSyntax: true
     lineNos: true
