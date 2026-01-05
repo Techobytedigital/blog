@@ -17,10 +17,34 @@ For example, to create a new [post](../content/posts) named `example.md`:
 hugo new post/example.md
 ```
 
-If you're creating a new page based on an existing [archetype](../archetypes), can use:
+### Archetypes
 
-```shell
-hugo new --kind <archetype> <name>
+Using [archetypes](../archetypes/), you can pre-define front matter and default content for pages created with `hugo new`. For example, the [`notes.md` archetype](../archetypes/notes.md) defines the default frontmatter for new posts created with `hugo new posts/post-name.md`.
+
+Archetypes allow for templating to create dynamic frontmatter. For example, you can automatically generate a title from the page name using `replace`:
+
+```markdown
+title: "{{ replace .Name "-" " " | title }}"
+```
+
+Automatically insert the creation date:
+
+```markdown
+date: {{ .Date }}
+```
+
+Or use conditionals to dynamically set the default tags, categories, description, etc:
+
+```markdown
+{{ if hasPrefix .Dir "notes/snippets" }}
+categories: []
+description: "Code snippet or command reference"
+tags: ["snippet"]
+{{ else }}
+categories: []
+description: ""
+tags: ["note"]
+{{ end }}
 ```
 
 ## Serving the site for development
