@@ -17,6 +17,7 @@ services:
       - ${SITE_DIR:-../..}/archetypes:/src/archetypes
       - ${SITE_DIR:-../..}/assets:/src/assets
       - ${SITE_DIR:-../..}/content:/src/content
+      - ${SITE_DIR:-../..}/layouts:/src/layouts
       - ${SITE_DIR:-../..}/hugo.yml:/src/hugo.yml
       - ${SITE_DIR:-../..}/go.mod:/src/go.mod
       - ${SITE_DIR:-../..}/go.sum:/src/go.sum
