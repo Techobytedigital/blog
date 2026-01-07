@@ -2,7 +2,6 @@
 name: techobyteblog
 
 volumes:
-  sftpgo_data: {}
   sftpgo_home: {}
   sftpgo_backups: {}
   sftpgo_rendered: {}
