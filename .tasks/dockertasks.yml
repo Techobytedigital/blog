@@ -3,19 +3,25 @@
 version: "3"
 
 tasks:
-  start:
+  build-prod:
+    desc: Build Production container
+    dir: .containers/prod
+    cmds:
+      - cmd: docker compose build --no-cache
+
+  start-dev:
     desc: Start dev container
     dir: .containers/dev
     cmds:
       - cmd: docker compose up -d
 
-  restart:
+  restart-dev:
     desc: Start dev containers with --force-recreate
     dir: .containers/dev
     cmds:
       - cmd: docker compose up -d --force-recreate
 
-  reset:
+  reset-dev:
     desc: Hard reset environment by bringing it down before restarting
     dir: .containers/dev
     cmds:
