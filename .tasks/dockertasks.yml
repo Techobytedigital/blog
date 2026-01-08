@@ -9,11 +9,29 @@ tasks:
     cmds:
       - cmd: docker compose build --no-cache
 
+  start-prod:
+    desc: Start Production containers
+    dir: .containers/prod
+    cmds:
+      - cmd: docker compose up -d
+
+  stop-prod:
+    desc: Stop running Production containers
+    dir: .containers/prod
+    cmds:
+      - cmd: docker compose down
+
   start-dev:
     desc: Start dev container
     dir: .containers/dev
     cmds:
       - cmd: docker compose up -d
+
+  stop-dev:
+    desc: Stop dev containers
+    dir: .containers/dev
+    cmds:
+      - cmd: docker compose down
 
   restart-dev:
     desc: Start dev containers with --force-recreate
