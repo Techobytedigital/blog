@@ -1,2 +1,7 @@
 /public/
 /resources/
+
+.env
+
+!*.example*
+!*example*.*
