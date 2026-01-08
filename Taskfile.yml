@@ -4,6 +4,7 @@ version: "3"
 
 includes:
   docker: .tasks/dockertasks.yml
+  _hugo: .tasks/hugotasks.yml
 
 tasks:
   build:prod:
@@ -25,3 +26,13 @@ tasks:
     desc: Hard reset the development environment, bring it down before starting back up
     cmds:
       - task: docker:reset-dev
+
+  hugo:build:
+    desc: Build Hugo site locally
+    cmds:
+      - task: _hugo:build
+
+  hugo:serve:
+    desc: Serve Hugo site locally
+    cmds:
+      - task: _hugo:serve
