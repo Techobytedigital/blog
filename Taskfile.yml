@@ -1,0 +1,38 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+---
+version: "3"
+
+includes:
+  docker: .tasks/dockertasks.yml
+  _hugo: .tasks/hugotasks.yml
+
+tasks:
+  build:prod:
+    desc: Build Production container
+    cmds:
+      - task: docker:build-prod
+
+  start:dev:
+    desc: Start the development containers
+    cmds:
+      - task: docker:start-dev
+
+  restart:dev:
+    desc: Restart running development environment (or start it, if it's not running)
+    cmds:
+      - task: docker:restart-dev
+
+  reset:dev:
+    desc: Hard reset the development environment, bring it down before starting back up
+    cmds:
+      - task: docker:reset-dev
+
+  hugo:build:
+    desc: Build Hugo site locally
+    cmds:
+      - task: _hugo:build
+
+  hugo:serve:
+    desc: Serve Hugo site locally
+    cmds:
+      - task: _hugo:serve
