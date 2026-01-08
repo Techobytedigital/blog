@@ -1,0 +1,30 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+---
+version: "3"
+
+vars:
+  HUGO_ENV: '{{default "development" .HUGO_ENV}}'
+  HUGO_BASEURL: '{{default "http://localhost:1313/" .HUGO_BASEURL}}'
+  HUGO_HOST: '{{default "0.0.0.0" .HUGO_HOST}}'
+  HUGO_PORT: '{{default "1313" .HUGO_PORT}}'
+  HUGO_DRAFTS: '{{default "false" .HUGO_DRAFTS}}'
+
+tasks:
+  build:
+    desc: Build site locally using Hugo
+    cmds:
+      - >
+        hugo
+        --minify
+        --gc
+        --baseURL {{.HUGO_BASEURL}}
+
+  serve:
+    desc: Serve site locally (optionally with drafts)
+    cmds:
+      - >
+        hugo server
+        --bind {{.HUGO_HOST}}
+        --port {{.HUGO_PORT}}
+        --appendPort=false
+        {{if eq .HUGO_DRAFTS "true"}}-D{{end}}
