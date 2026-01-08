@@ -1,0 +1,23 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+---
+version: "3"
+
+tasks:
+  start:
+    desc: Start dev container
+    dir: .containers/dev
+    cmds:
+      - cmd: docker compose up -d
+
+  restart:
+    desc: Start dev containers with --force-recreate
+    dir: .containers/dev
+    cmds:
+      - cmd: docker compose up -d --force-recreate
+
+  reset:
+    desc: Hard reset environment by bringing it down before restarting
+    dir: .containers/dev
+    cmds:
+      - cmd: |
+          docker compose down && docker compose up -d --force-recreate

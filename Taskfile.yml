@@ -4,9 +4,24 @@ version: "3"
 
 includes:
   builder: .tasks/build.yml
-
+  dev: .tasks/develop.yml
 tasks:
   build:prod:
     desc: Build Production container
     cmds:
       - task: builder:prod
+
+  start:dev:
+    desc: Start the development containers
+    cmds:
+      - task: dev:start
+
+  restart:dev:
+    desc: Restart running development environment (or start it, if it's not running)
+    cmds:
+      - task: dev:restart
+
+  reset:dev:
+    desc: Hard reset the development environment, bring it down before starting back up
+    cmds:
+      - task: dev:reset
