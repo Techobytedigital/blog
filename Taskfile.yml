@@ -12,10 +12,25 @@ tasks:
     cmds:
       - task: docker:build-prod
 
+  start:prod:
+    desc: Start the production containers
+    cmds:
+      - task: docker:start-prod
+
+  stop:prod:
+    desc: Stop the production containers
+    cmds:
+      - task: docker:stop-prod
+
   start:dev:
     desc: Start the development containers
     cmds:
       - task: docker:start-dev
+
+  stop:dev:
+    desc: Stop development containers
+    cmds:
+      - task: docker:stop-dev
 
   restart:dev:
     desc: Restart running development environment (or start it, if it's not running)
