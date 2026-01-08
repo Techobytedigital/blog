@@ -1,5 +1,6 @@
 {
   debug
+  email {$CADDY_EMAIL}
 }
 
 {$CADDY_SITE_ADDRESS} {
