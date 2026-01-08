@@ -3,8 +3,6 @@
 version: "3"
 
 includes:
-  builder: .tasks/build.yml
-  dev: .tasks/develop.yml
   docker: .tasks/dockertasks.yml
 
 tasks:
