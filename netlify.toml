@@ -1,0 +1,6 @@
+[build.environment]
+HUGO_BASEURL = "https://techobyte.cc"
+HUGO_VERSION = "0.152.2"
+HUGO_ENV = "production"
+NODE_VERSION = "22"
+HUGO_ENABLEGITINFO = "true"
