@@ -8,9 +8,3 @@ HUGO_ENABLEGITINFO = "true"
 [build]
 command = "hugo --gc --minify"
 publish = "public"
-
-[[redirects]]
-from = "/*"
-to = "https://techobyte.cc/:splat"
-status = 301
-force = true
