@@ -1,5 +1,5 @@
 ---
-name: "Hugo Release Pipeline"
+name: "Netlify Build & Release"
 env:
   HUGO_VERSION: "0.152.2"
 
