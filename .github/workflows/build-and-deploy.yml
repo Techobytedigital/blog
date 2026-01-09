@@ -1,13 +1,11 @@
 ---
 name: "Hugo Release Pipeline"
-
 env:
   HUGO_VERSION: "0.152.2"
 
 on:
   pull_request:
     branches: [main]
-    ## Run when PR has 'netlify-release' label
     types: [labeled, synchronize]
 
 permissions:
@@ -28,7 +26,7 @@ jobs:
       - name: Setup Hugo
         uses: peaceiris/actions-hugo@v3
         with:
-          hugo-version: "0.152.2"
+          hugo-version: ${{ env.HUGO_VERSION }}
           extended: true
 
       - name: Build site
@@ -42,7 +40,21 @@ jobs:
 
       - name: Check RSS
         run: |
-          curl --fail -s public/rss.xml | grep -q "techobyte.cc" || exit 1
+          curl --fail -s public/rss.xml | grep -q "${{ vars.HUGO_BASEURL }}" || exit 1
+
+      - name: Deploy Preview
+        if: steps.build.outcome == 'success'
+        id: preview
+        uses: nwtgck/actions-netlify@v3
+        with:
+          publish-dir: "./public"
+          production-branch: main
+          deploy-message: "Preview PR #${{ github.event.pull_request.number }}"
+          ## Posts URL as PR comment
+          enable-pull-request-comment: true
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
 
   deploy:
     needs: test
