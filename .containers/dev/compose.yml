@@ -19,6 +19,7 @@ services:
       - ${SITE_DIR:-../..}/content:/src/content
       - ${SITE_DIR:-../..}/layouts:/src/layouts
       - ${SITE_DIR:-../..}/hugo.yml:/src/hugo.yml
+      - ${SITE_DIR:-../..}/static:/src/static
       - ${SITE_DIR:-../..}/go.mod:/src/go.mod
       - ${SITE_DIR:-../..}/go.sum:/src/go.sum
       - ${HUGO_CACHE_DIR:-hugo_cache_dev}:/tmp/hugo_cache
