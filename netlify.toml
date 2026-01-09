@@ -4,3 +4,13 @@ HUGO_VERSION = "0.152.2"
 HUGO_ENV = "production"
 NODE_VERSION = "22"
 HUGO_ENABLEGITINFO = "true"
+
+[build]
+command = "hugo --gc --minify"
+publish = "public"
+
+[[redirects]]
+from = "/*"
+to = "https://techobyte.cc/:splat"
+status = 301
+force = true
