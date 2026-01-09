@@ -1,0 +1,26 @@
+---
+name: "Test Blog Links"
+
+on:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    ## Every 6 hours
+    - cron: "0 */6 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+    steps:
+      - name: Test live site links
+        uses: lycheeverse/lychee-action@v1
+        with:
+          args: >-
+            --base-verification false 
+            --no-progress 
+            "${{ vars.HUGO_BASEURL }}"/*
