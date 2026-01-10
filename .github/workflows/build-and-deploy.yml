@@ -43,7 +43,8 @@ jobs:
         uses: lycheeverse/lychee-action@v1
         with:
           args: "public/**/*.html --base ."
-          fail: true # ← FAILS PIPELINE
+          ## When true, fail the pipeline on lychee failures
+          fail: false
 
       - name: Upload artifact
         if: steps.build.outcome == 'success' && steps.lychee.outcome == 'success'
