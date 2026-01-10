@@ -88,11 +88,7 @@ jobs:
           path: public
 
       - name: Deploy to Production
-        uses: nwtgck/actions-netlify@v3
-        with:
-          publish-dir: "./public"
-          production-branch: main
-          deploy-message: "Production deploy PR #${{ github.event.pull_request.number }}"
+        run: netlify deploy --dir=public --prod
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
