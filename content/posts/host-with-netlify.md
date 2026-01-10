@@ -105,7 +105,16 @@ Since this blog post is not meant to be an in-depth tutorial of how to build a w
   * Save your `favicon.ico` to `static/favicon.ico` (if you have one), and any images you use in your posts in `static/img` (this directory doesn't exist by default, you have to create it).
 * The `layouts/` directory is where you can create [Hugo templates](https://gohugo.io/content-management/data-sources/) for finer-grained control of how content is displayed on your site.
 
-The `hugo.toml` file is the main configuration file for your site. If you prefer YAML, you can copy the contents of `hugo.toml` into [convertsimple.com](https://www.convertsimple.com/convert-toml-to-yaml/), delete or rename `hugo.toml` to `hugo.yaml`/`hugo.yml`, and paste the converted configuration into the YAML file. You can also run th `hugo new site` command with a `--format yaml` flag to do this automatically. Hugo will detect a file named `hugo.yml` or `hugo.toml` wherever you run `hugo` commands from. This guide assumes you are using YAML for your configuration.
+The `hugo.toml` file is the main configuration file for your site. If you prefer YAML, you can copy the contents of `hugo.toml` into [convertsimple.com](https://www.convertsimple.com/convert-toml-to-yaml/), delete or rename `hugo.toml` to `hugo.yaml`/`hugo.yml`, and paste the converted configuration into the YAML file. Hugo will detect a file named `hugo.yml` or `hugo.toml` wherever you run `hugo` commands from. This guide assumes you are using YAML for your configuration.
+
+{{< notice tip >}}
+You can initialize Hugo with a YAML config file instead of TOML by running the  `hugo new site` command with a `--format yaml` flag:
+
+```shell
+hugo new site site-name --format yaml
+```
+
+{{< /notice >}}
 
 ## Convert Site to Hugo Module
 
@@ -135,7 +144,9 @@ module:
     - path: github.com/adityatelange/hugo-PaperMod
 ```
 
+{{< notice note >}}
 Run `hugo mod tidy`; this will download the theme(s)/module(s) you declare, remove old versions, and update your `go.mod` file for you.
+{{< /notice >}}
 
 ## Run Local Hugo Development Server
 
