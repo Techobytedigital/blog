@@ -17,10 +17,15 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install Vale
+      - name: Install mise
         run: |
-          curl -sfL https://github.com/errata-ai/vale/releases/latest/download/vale_Linux_amd64.tar.gz | tar -xz -C /usr/local/bin
+          curl https://mise.run | sh
+          echo "$HOME/.mise/bin" >> $GITHUB_PATH
+
+      - name: Install Vale with mise
+        run: |
+          mise install vale@latest
+          mise use vale@latest
 
       - name: Vale prose linting
-        run: |
-          vale content/
+        run: vale content/
