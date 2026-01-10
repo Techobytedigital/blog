@@ -22,4 +22,6 @@ jobs:
         with:
           files: '["content/**.{md}"]'
           ## Lint all files, not just changed
-          filter-mode: "nofilter"
+          filter_mode: "nofilter"
+          ## When true, fail on errors + warnings
+          fail_on_error: false
