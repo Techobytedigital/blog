@@ -42,9 +42,11 @@ jobs:
         with:
           args: "public/**/*.html --base-verification false"
 
+      ## Check RSS feed links in public/feed/index.xml
       - name: Check RSS
         run: |
-          curl --fail -s public/feed/index.xml | grep -q "${{ vars.HUGO_BASEURL }}" || exit 1
+          [[ -f public/feed/index.xml ]] || exit 1
+          grep -qiE "(techobyte\.cc|${{ vars.HUGO_BASEURL }})" public/feed/index.xml || exit 1
 
       - name: Upload artifact
         if: steps.build.outcome == 'success'
