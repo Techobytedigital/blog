@@ -26,5 +26,6 @@ tasks:
         hugo server
         --bind {{.HUGO_HOST}}
         --port {{.HUGO_PORT}}
+        --baseURL {{.HUGO_BASEURL}}
         --appendPort=false
         {{if eq .HUGO_DRAFTS "true"}}-D{{end}}
