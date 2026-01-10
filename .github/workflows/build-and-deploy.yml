@@ -68,6 +68,9 @@ jobs:
           hugo-version: ${{ env.HUGO_VERSION }}
           extended: true
 
+      - name: Build preview site
+        run: hugo --gc --minify
+
       - name: Install Netlify CLI
         run: npm install -g netlify-cli
 
