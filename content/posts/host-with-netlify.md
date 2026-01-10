@@ -208,3 +208,18 @@ publish = "public"
 ```
 
 This file tells Netlify how to build your Hugo site. Commit it to git with `git add * && git commit -m "Add netlify config"` and push to main with `git push`. Even better, create a new branch before adding/committing your code, i.e. `git switch -c feat/netlify-setup`, then add the files and commit message. When you push, use `git push -u origin feat/netlify-setup`. Merge the branch into the `main` branch in Github.
+
+## Github Action: Publish to Netlify
+
+Before setting up a Github action, you need to do some setup in Github itself. Open the repository's settingss and make the following changes:
+
+* In `Code and Automation > Actions > General`, select `Allow all actions and reusable workflows`
+* In `Code and Automation > Environments`, create a 'production' environment.
+  * In `Environment Secrets`, add the following secrets:
+    * `NETLIFY_AUTH_TOKEN`
+      * API token created on Netlify's site.
+      * Follow the [Netlify docs - Authentication](https://docs.netlify.com/api-and-cli-guides/api-guides/get-started-with-api/#authentication) steps to create an API key for the Github Action.
+    * `NETLIFY_SITE_ID`
+      * Find this in your Netlify project's configuration, under `General > Project details > Project information`.
+      * Use the `Project ID` value.
+  * In `Environment varaibles`, set `HUGO_BASEURL` to your Netlify app URL or your custom domain.
