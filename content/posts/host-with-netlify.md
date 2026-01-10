@@ -186,6 +186,8 @@ Create an account on [Netlify](https://netlify.com). During the setup process, y
 
 When you are prompted to input build settings like the base directory/package directory, the build command, the publish directory, etc, leave all of these blank. You can optionally leave the functions directory as `netlify/functions`. If you set values here, the site will fail to build because the `hugo.yml` interferes with these settings. Do your site configuration in `hugo.yml`, not Netlify.
 
+### netlify.toml Config
+
 After finishing the setup, create a `netlify.toml` file in the root of your Hugo repository :
 
 {{< notice note >}}
@@ -204,3 +206,5 @@ HUGO_ENABLEGITINFO = "true"
 command = "hugo --gc --minify"
 publish = "public"
 ```
+
+This file tells Netlify how to build your Hugo site. Commit it to git with `git add * && git commit -m "Add netlify config"` and push to main with `git push`. Even better, create a new branch before adding/committing your code, i.e. `git switch -c feat/netlify-setup`, then add the files and commit message. When you push, use `git push -u origin feat/netlify-setup`. Merge the branch into the `main` branch in Github.
