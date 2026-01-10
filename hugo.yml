@@ -34,11 +34,19 @@ menu:
       url: /archive/
       weight: 60
 
+    - identifier: rss
+      name: "rss"
+      url: "/index.xml"
+      weight: 70
+
 outputs:
   home:
     - HTML
     - RSS
     - JSON
+  section?:
+    - HTML
+    - RSS
 
 module:
   imports:
@@ -68,9 +76,10 @@ params:
   DateFormat: "2006-01-02"
   defaultTheme: auto
   disableThemeToggle: false
-  ## Controls which folder/section posts appear on home page
-  # mainSections:
-  #   - posts
+  ## Controls which folder/section posts appear on home page and in RSS feeds
+  mainSections:
+    - posts
+    - notes
 
   ShowReadingTime: true
   ShowShareButtons: false
@@ -79,6 +88,7 @@ params:
   ShowCodeCopyButtons: true
   ShowWordCount: true
   ShowRssButtonInSectionTermList: true
+  ShowFullTextinRSS: true
   UseHugoToc: true
   disableSpecial1stPost: false
   disableScrollToTop: false
