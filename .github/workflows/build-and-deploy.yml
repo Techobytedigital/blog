@@ -40,7 +40,7 @@ jobs:
       - name: Test links
         uses: lycheeverse/lychee-action@v1
         with:
-          args: "public/**/*.html --base-verification false"
+          args: "public/**/*.html --base ."
 
       - name: Upload artifact
         if: steps.build.outcome == 'success'
