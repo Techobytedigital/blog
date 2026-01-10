@@ -57,3 +57,8 @@ tasks:
     desc: Synchronize Vale styles
     cmds:
       - task: _vale:vale-sync
+
+  vale:content:
+    desc: Run vale on content/ dir
+    cmds:
+      - task: _vale:vale-lint-content
