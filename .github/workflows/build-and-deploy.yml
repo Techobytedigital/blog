@@ -6,7 +6,7 @@ env:
 on:
   pull_request:
     branches: [main]
-    types: [labeled, synchronize]
+    types: [labeled, synchronize, opened]
 
 permissions:
   contents: read
@@ -14,7 +14,6 @@ permissions:
 
 jobs:
   test:
-    if: contains(github.event.pull_request.labels.*.name, 'netlify-release')
     runs-on: ubuntu-latest
     outputs:
       success: ${{ steps.build.outcome == 'success' }}
@@ -25,30 +24,35 @@ jobs:
 
       - name: Vale prose linting
         uses: errata-ai/vale-action@v2.1.1
+        if: contains(github.event.pull_request.labels.*.name, 'netlify-release')
         with:
           files: '["content/**.{md}"]'
 
       - name: Setup Hugo
         uses: peaceiris/actions-hugo@v3
+        if: contains(github.event.pull_request.labels.*.name, 'netlify-release')
         with:
           hugo-version: ${{ env.HUGO_VERSION }}
           extended: true
 
       - name: Build site
+        if: contains(github.event.pull_request.labels.*.name, 'netlify-release')
         id: build
         run: hugo --gc --minify
 
       - name: Test links
+        if: contains(github.event.pull_request.labels.*.name, 'netlify-release')
         uses: lycheeverse/lychee-action@v1
         with:
           args: "public/**/*.html --base-verification false"
 
       - name: Check RSS
+        if: contains(github.event.pull_request.labels.*.name, 'netlify-release')
         run: |
-          curl --fail -s public/rss.xml | grep -q "${{ vars.HUGO_BASEURL }}" || exit 1
+          curl --fail -s public/feed/index.xml | grep -q "${{ vars.HUGO_BASEURL }}" || exit 1
 
       - name: Deploy Preview
-        if: steps.build.outcome == 'success'
+        if: contains(github.event.pull_request.labels.*.name, 'netlify-release') && steps.build.outcome == 'success'
         id: preview
         uses: nwtgck/actions-netlify@v3
         with:
