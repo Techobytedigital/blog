@@ -67,7 +67,6 @@ jobs:
       - name: Deploy Preview
         uses: nwtgck/actions-netlify@v3
         with:
-          publish-dir: "./public"
           deploy-message: "Preview PR #${{ github.event.pull_request.number }}"
           enable-pull-request-comment: true
         env:
