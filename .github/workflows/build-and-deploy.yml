@@ -1,4 +1,3 @@
----
 name: "Netlify Build & Release"
 env:
   HUGO_VERSION: "0.154.3"
@@ -14,6 +13,7 @@ permissions:
 
 jobs:
   test:
+    if: contains(github.event.pull_request.labels.*.name, 'netlify-release')
     runs-on: ubuntu-latest
     outputs:
       success: ${{ steps.build.outcome == 'success' }}
@@ -24,42 +24,44 @@ jobs:
 
       - name: Vale prose linting
         uses: errata-ai/vale-action@v2.1.1
-        if: contains(github.event.pull_request.labels.*.name, 'netlify-release')
         with:
           files: '["content/**.{md}"]'
 
       - name: Setup Hugo
         uses: peaceiris/actions-hugo@v3
-        if: contains(github.event.pull_request.labels.*.name, 'netlify-release')
         with:
           hugo-version: ${{ env.HUGO_VERSION }}
           extended: true
 
       - name: Build site
-        if: contains(github.event.pull_request.labels.*.name, 'netlify-release')
         id: build
         run: hugo --gc --minify
 
       - name: Test links
-        if: contains(github.event.pull_request.labels.*.name, 'netlify-release')
         uses: lycheeverse/lychee-action@v1
         with:
           args: "public/**/*.html --base-verification false"
 
       - name: Check RSS
-        if: contains(github.event.pull_request.labels.*.name, 'netlify-release')
         run: |
           curl --fail -s public/feed/index.xml | grep -q "${{ vars.HUGO_BASEURL }}" || exit 1
 
+      - name: Upload artifact
+        if: steps.build.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: hugo-site
+          path: public
+
       - name: Deploy Preview
-        if: contains(github.event.pull_request.labels.*.name, 'netlify-release') && steps.build.outcome == 'success'
+        if: steps.build.outcome == 'success'
         id: preview
         uses: nwtgck/actions-netlify@v3
         with:
           publish-dir: "./public"
           production-branch: main
+          ## Add deploy preview link to PR comment
           deploy-message: "Preview PR #${{ github.event.pull_request.number }}"
-          ## Posts URL as PR comment
           enable-pull-request-comment: true
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
