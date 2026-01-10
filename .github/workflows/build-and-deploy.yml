@@ -35,7 +35,7 @@ jobs:
 
       - name: Build site
         id: build
-        run: hugo --gc --minify
+        run: hugo --gc --minify --baseURL "/"
 
       - name: Test links
         id: lychee
@@ -68,7 +68,6 @@ jobs:
         uses: nwtgck/actions-netlify@v3
         with:
           publish-dir: "./public"
-          production-branch: main
           deploy-message: "Preview PR #${{ github.event.pull_request.number }}"
           enable-pull-request-comment: true
         env:
@@ -86,6 +85,9 @@ jobs:
         with:
           name: hugo-site
           path: public
+
+      - name: Install Netlify CLI
+        run: npm install -g netlify-cli
 
       - name: Deploy to Production
         run: netlify deploy --dir=public --prod
