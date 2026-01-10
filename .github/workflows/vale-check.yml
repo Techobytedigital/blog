@@ -17,11 +17,10 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install Vale
+        run: |
+          curl -sfL https://github.com/errata-ai/vale/releases/latest/download/vale_Linux_amd64.tar.gz | tar -xz -C /usr/local/bin
+
       - name: Vale prose linting
-        uses: errata-ai/vale-action@v2.1.1
-        with:
-          files: '["content/**.{md}"]'
-          ## Lint all files, not just changed
-          filter_mode: "nofilter"
-          ## When true, fail on errors + warnings
-          fail_on_error: false
+        run: |
+          vale content/
