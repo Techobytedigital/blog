@@ -68,16 +68,11 @@ jobs:
           hugo-version: ${{ env.HUGO_VERSION }}
           extended: true
 
-      - name: Build preview site
-        run: hugo --gc --minify -b "https://$(echo ${{ github.head_ref || github.ref_name }}--techobyte-blog.netlify.app/)"
+      - name: Install Netlify CLI
+        run: npm install -g netlify-cli
 
       - name: Deploy Preview
-        uses: nwtgck/actions-netlify@v3
-        with:
-          publish-dir: "./public"
-          production-deploy: false
-          deploy-message: "Preview PR #${{ github.event.pull_request.number }}"
-          enable-pull-request-comment: true
+        run: netlify deploy --dir=public --alias "pr-${{ github.event.pull_request.number }}"
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
