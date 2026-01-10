@@ -8,3 +8,6 @@ HUGO_ENABLEGITINFO = "true"
 [build]
 command = "hugo --gc --minify"
 publish = "public"
+
+[context.deploy-preview]
+command = "hugo --gc --minify -b $DEPLOY_PRIME_URL"
