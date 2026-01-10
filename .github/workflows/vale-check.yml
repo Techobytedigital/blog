@@ -1,0 +1,35 @@
+name: "Vale Check"
+
+on:
+  workflow_dispatch:
+#   pull_request:
+#     branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  vale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install mise
+        run: |
+          curl https://mise.run | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          echo "$HOME/.mise/bin" >> $GITHUB_PATH
+
+      - name: Install & activate Vale
+        run: |
+          eval "$(mise activate bash)"
+          mise install vale@latest
+          mise use vale@latest
+
+      - name: Vale prose linting
+        run: |
+          eval "$(mise activate bash)"
+          vale content/
