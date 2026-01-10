@@ -67,7 +67,7 @@ jobs:
     needs: test
     if: needs.test.outputs.success == 'true' && contains(github.event.pull_request.labels.*.name, 'netlify-release')
     runs-on: ubuntu-latest
-    environment: production
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || '' }}
     steps:
       - name: Download built site
         uses: actions/download-artifact@v4
