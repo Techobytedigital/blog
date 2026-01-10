@@ -5,6 +5,7 @@ version: "3"
 includes:
   docker: .tasks/dockertasks.yml
   _hugo: .tasks/hugotasks.yml
+  _vale: .tasks/valetasks.yml
 
 tasks:
   build:prod:
@@ -51,3 +52,8 @@ tasks:
     desc: Serve Hugo site locally
     cmds:
       - task: _hugo:serve
+
+  vale:sync:
+    desc: Synchronize Vale styles
+    cmds:
+      - task: _vale:vale-sync
