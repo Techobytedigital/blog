@@ -13,25 +13,6 @@ comments: false
 searchHidden: false
 ---
 
-## Outline
-
-* [x] Summary
-  * [x] Article summary describing the purpose and tools/requirements.
-* [ ] Hugo setup
-  * [x] Git repo init
-  * [x] Hugo project init
-  * [x] Adding themes
-  * [ ] The `hugo.yml` file
-* [ ] Git repo setup
-  * [ ] `task` file
-  * [ ] `netlify.toml` file
-  * [ ] Github action
-* [ ] Netlify setup
-  * [ ] Repo integration
-  * [ ] Disable automated deployments (handled by Github action)
-
----
-
 [Hugo](https://gohugo.com) is a [static site generator](https://www.cloudflare.com/learning/performance/static-site-generator/) that enables you to write your website's content as Markdown files, and render them to nice-looking websites using [Hugo themes](https://themes.gohugo.io). The word "static" in this context means that the files Hugo renders are meant to be served as-is, there is no "backend" for the site (unless you add custom Javascript code).
 
 Static sites are perfect for many different kinds of websites, from personal blogs like this site to product sites (i.e. [Brave browser's website](https://brave.com)) to an organization's home page (i.e. [the LetsEncrypt project's site](https://letsencrypt.org)) to documentation sites (i.e. [DigitalOcean's documentation](https://docs.digitalocean.com)). With a static site generator, you do not have to deal with web code like HTML or Javascript, but you still have the option of [creating your own custom themes](https://gohugo.io/commands/hugo_new_theme/) if that appeals to you.
@@ -329,3 +310,74 @@ jobs:
 When you want to deploy changes to your live site, create a branch with your changes, and when you open a pull request into the `main` branch, add a label `netlify-release`. Any PR with this label will trigger this Action.
 
 Before completing the pull request, go to `Deploys` in your Netlify project and test the changes in the Deploy Preview environment. When you are satisfied, go back to the pull request in Github and click the link to the deploy pipeline. The pipeline should be paused, waiting for you to approve the release to the Production slot.
+
+## Bonus: A Production Hugo Dockerfile
+
+If you plan to host your Hugo site yourself, you can set up a Dockerfile to build your site and serve it behind a proxy like [Caddy](https://caddyserver.com) or [NGINX](https://nginx.org/en/).
+
+You can use a multi-stage Docker build to have a smaller final image that only has your rendered HTML and the Caddy server to serve it:
+
+```dockerfile
+FROM hugomods/hugo:exts AS builder
+
+WORKDIR /src
+
+## Copy Hugo site files & config
+COPY archetypes/ archetypes/
+COPY assets/ assets/
+COPY content/ content/
+COPY layouts/ layouts/
+COPY static/ static/
+COPY hugo.yml go.mod go.sum .hugo_build.lock ./
+
+ARG HUGO_BASEURL=http://localhost/
+
+RUN hugo \
+  --minify \
+  --gc \
+  --baseURL="${HUGO_BASEURL}" \
+  --destination /output/public
+
+FROM caddy:alpine
+
+COPY --from=builder /output/public /usr/share/caddy
+
+COPY ./Caddyfile /etc/caddy/Caddyfile
+
+EXPOSE 80 443
+
+CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile"]
+
+```
+
+Create a `Caddyfile` the container will use to configure the Caddy server:
+
+```caddyfile
+{
+  # debug
+  email {$CADDY_EMAIL}
+}
+
+{$CADDY_SITE_ADDRESS} {
+  root * /usr/share/caddy
+  file_server
+  encode gzip
+
+  header {
+    X-Content-Type-Options nosniff
+    X-Frame-Options DENY
+  }
+}
+```
+
+When you build the container, you will need to set environment variables for `CADDY_EMAIL` (for automated LetsEncrypt SSL certificates) and `CADDY_SITE_ADDRESS` (for handling connections coming to the Caddy URL). The 2 env vars are ["build arguments"](https://docs.docker.com/build/building/variables/), which you can inject in your `docker build` command using `--build-arg ARG_NAME=value`. For example, to build this Dockerfile:
+
+```shell
+docker build --build-arg CADDY_EMAIL="youremail@address.com" --build-arg CADDY_SITE_ADDRESS="myblog.com" .
+```
+
+## Closing
+
+Building a blog with Hugo is fun, and relatively quick and easy to get up and running. You can build a complex site for your product, or a simple blog you update a couple times a year, all with the same tooling. The minimal amount of configuration you need to get started lends itself to quick development, while still allowing you to build up [a more complex configuration over time](https://gohugo.io/configuration/). Hugo modules make it even easier to install themes and site extensions, and the ability to host the site anywhere that can serve static web files gives you a ton of flexibility to where you put the site online.
+
+This guide did not go in-depth on configuring and customizing Hugo, nor did it walk through creating content for the site. The [Hugo quickstart guide](https://gohugo.io/getting-started/) will do a better job of walking you through building your first blog, and I highly recommend keeping this site open and using the search bar at the top as you're learning to find new ways of using Hugo.
