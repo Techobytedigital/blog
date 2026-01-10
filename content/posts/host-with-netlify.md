@@ -155,3 +155,27 @@ Now you can test running the server with `hugo serve`, which will compile the si
 Hugo does this *very* quickly. Each page takes mere milliseconds to render, even those with images or a lot of text, and it caches between rebuilds, only re-rendering the new content. This leads to a pleasant "change something and see it instantly" writing experience.
 
 If you start the server with `-D`, Hugo will also render your drafts in the development server.
+
+## Git Repository Setup
+
+Run `git init -b main` in your Hugo site's directory to initialize a new Git repository. Before committing any code, add a `.gitignore` that ignores Hugo's `public/` and `resources/` directories that it creates when you run the development server:
+
+```plaintext
+/public/
+/resources/
+```
+
+Then, do your initial commit:
+
+```shell
+git add *
+git commit -m "Initial commit"
+```
+
+Create a repository on Github for your Hugo site. This should match the URL you used when you create the Hugo module with `hugo mod init github.com/user/your-site-name`. Add the remote to your local repository:
+
+```shell
+git remote set origin git@github.com:username/your-site-name.git
+```
+
+And push your code with `git push -u origin main`.
