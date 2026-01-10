@@ -20,12 +20,16 @@ jobs:
       - name: Install mise
         run: |
           curl https://mise.run | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
           echo "$HOME/.mise/bin" >> $GITHUB_PATH
 
-      - name: Install Vale with mise
+      - name: Install & activate Vale
         run: |
+          eval "$(mise activate bash)"
           mise install vale@latest
           mise use vale@latest
 
       - name: Vale prose linting
-        run: vale content/
+        run: |
+          eval "$(mise activate bash)"
+          vale content/
