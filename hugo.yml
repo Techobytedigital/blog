@@ -118,7 +118,7 @@ params:
 
   homeInfoParams:
     Title: "Welcome to Techobyte"
-    Content: a personal blog about technology & computing
+    Content: A text-heavy personal blog about technology & computing, covering topics like Linux, scripting/programming (Python, Bash, Powershell, Go), DevOps, automation, and more.
 
   socialIcons:
     - name: github
