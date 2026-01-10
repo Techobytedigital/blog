@@ -38,36 +38,24 @@ jobs:
         run: hugo --gc --minify
 
       - name: Test links
+        id: lychee
+        if: steps.build.outcome == 'success'
         uses: lycheeverse/lychee-action@v1
         with:
           args: "public/**/*.html --base ."
+          fail: true # ← FAILS PIPELINE
 
       - name: Upload artifact
-        if: steps.build.outcome == 'success'
+        if: steps.build.outcome == 'success' && steps.lychee.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: hugo-site
           path: public
 
-      - name: Deploy Preview
-        if: steps.build.outcome == 'success'
-        id: preview
-        uses: nwtgck/actions-netlify@v3
-        with:
-          publish-dir: "./public"
-          production-branch: main
-          ## Add deploy preview link to PR comment
-          deploy-message: "Preview PR #${{ github.event.pull_request.number }}"
-          enable-pull-request-comment: true
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-
-  deploy:
+  deploy-preview:
     needs: test
-    if: needs.test.outputs.success == 'true' && contains(github.event.pull_request.labels.*.name, 'netlify-release')
+    if: needs.test.outputs.success == 'true'
     runs-on: ubuntu-latest
-    environment: ${{ github.ref == 'refs/heads/main' && 'production' || '' }}
     steps:
       - name: Download built site
         uses: actions/download-artifact@v4
@@ -75,12 +63,35 @@ jobs:
           name: hugo-site
           path: public
 
-      - name: Deploy to Netlify
+      - name: Deploy Preview
         uses: nwtgck/actions-netlify@v3
         with:
           publish-dir: "./public"
           production-branch: main
-          deploy-message: "Deploy from PR #${{ github.event.pull_request.number }}"
+          deploy-message: "Preview PR #${{ github.event.pull_request.number }}"
+          enable-pull-request-comment: true
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+
+  deploy-production:
+    needs: [test, deploy-preview]
+    if: needs.test.outputs.success == 'true' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Download built site
+        uses: actions/download-artifact@v4
+        with:
+          name: hugo-site
+          path: public
+
+      - name: Deploy to Production
+        uses: nwtgck/actions-netlify@v3
+        with:
+          publish-dir: "./public"
+          production-branch: main
+          deploy-message: "Production deploy PR #${{ github.event.pull_request.number }}"
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
