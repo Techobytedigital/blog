@@ -35,7 +35,7 @@ jobs:
 
       - name: Build site
         id: build
-        run: hugo --gc --minify --baseURL "/"
+        run: hugo --gc --minify
 
       - name: Test links
         id: lychee
