@@ -223,3 +223,109 @@ Before setting up a Github action, you need to do some setup in Github itself. O
       * Find this in your Netlify project's configuration, under `General > Project details > Project information`.
       * Use the `Project ID` value.
   * In `Environment varaibles`, set `HUGO_BASEURL` to your Netlify app URL or your custom domain.
+
+In your local Git repository, create a file at `.github/workflows/build-and-deploy.yml` (you can name the file whatever you want).
+
+```yaml
+---
+name: "Netlify Build & Release"
+env:
+  ## https://github.com/gohugoio/hugo/releases
+  HUGO_VERSION: "0.154.3"
+
+on:
+  pull_request:
+    branches: [main]
+    ## Only run on PRs that have a label. Use a conditional in a later step
+    #  to determine if a build/deploy should run on a PR open
+    types: [labeled, synchronize]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  test:
+    ## Check if PR has 'netlify-release' label
+    if: contains(github.event.pull_request.labels.*.name, 'netlify-release')
+    runs-on: ubuntu-latest
+    outputs:
+      success: ${{ steps.build.outcome == 'success' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: ${{ env.HUGO_VERSION }}
+          extended: true
+
+      - name: Build site
+        id: build
+        run: hugo --gc --minify
+
+      ## Optional: Use lychee to test links in rendered files before deploying
+      # - name: Test links
+      #   uses: lycheeverse/lychee-action@v1
+      #   with:
+      #     args: "public/**/*.html --base-verification false"
+
+      ## Optional: Ensure RSS feed generated correctly
+      # - name: Check RSS
+      #   run: |
+      #     curl --fail -s public/rss.xml | grep -q "${{ vars.HUGO_BASEURL }}" || exit 1
+
+      ## Create pipeline artifact for deploy stage
+      - name: Upload site artifact
+        if: steps.build.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: hugo-site
+          path: public
+          retention-days: 1
+
+      ## Create a deploy preview in Netlify.
+      #  This is basically a feature environment, which can be promoted to the Production slot.
+      - name: Deploy Preview
+        if: steps.build.outcome == 'success'
+        id: preview
+        uses: nwtgck/actions-netlify@v3
+        with:
+          publish-dir: "./public"
+          production-branch: main
+          deploy-message: "Preview PR #${{ github.event.pull_request.number }}"
+          ## Posts URL as PR comment
+          enable-pull-request-comment: true
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+
+  deploy:
+    needs: test
+    ## Ensure build/test passed, check if PR has 'netlify-release' label
+    if: needs.test.outputs.success == 'true' && contains(github.event.pull_request.labels.*.name, 'netlify-release')
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Download built site
+        uses: actions/download-artifact@v4
+        with:
+          name: hugo-site
+          path: public
+
+      - name: Deploy to Netlify
+        uses: nwtgck/actions-netlify@v3
+        with:
+          publish-dir: "./public"
+          production-branch: main
+          deploy-message: "Deploy from PR #${{ github.event.pull_request.number }}"
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+```
+
+When you want to deploy changes to your live site, create a branch with your changes, and when you open a pull request into the `main` branch, add a label `netlify-release`. Any PR with this label will trigger this Action.
+
+Before completing the pull request, go to `Deploys` in your Netlify project and test the changes in the Deploy Preview environment. When you are satisfied, go back to the pull request in Github and click the link to the deploy pipeline. The pipeline should be paused, waiting for you to approve the release to the Production slot.
