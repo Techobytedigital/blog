@@ -179,3 +179,28 @@ git remote set origin git@github.com:username/your-site-name.git
 ```
 
 And push your code with `git push -u origin main`.
+
+## Netlify Setup
+
+Create an account on [Netlify](https://netlify.com). During the setup process, you will be asked to create a project. Allow Netlify to integrate with your Github and find the repository with your Hugo site. If you already have a Netlify site, add a new project and use "Import an existing project" and find your Hugo repository.
+
+When you are prompted to input build settings like the base directory/package directory, the build command, the publish directory, etc, leave all of these blank. You can optionally leave the functions directory as `netlify/functions`. If you set values here, the site will fail to build because the `hugo.yml` interferes with these settings. Do your site configuration in `hugo.yml`, not Netlify.
+
+After finishing the setup, create a `netlify.toml` file in the root of your Hugo repository :
+
+{{< notice note >}}
+If you have a domain name, you can set it in `HUGO_BASEURL` instead of the Netlify app URL. Also, make sure to check the current versions of [Hugo](https://github.com/gohugoio/hugo/releases) and [Node](https://nodejs.org/en/download/current). for NPM versions, just put the major version number, i.e. `24`, `25`, etc.
+{{< /notice >}}
+
+```toml
+[build.environment]
+HUGO_BASEURL = "https://netlify-project-name.netlify.app"
+HUGO_VERSION = "0.152.2"
+HUGO_ENV = "production"
+NODE_VERSION = "24"
+HUGO_ENABLEGITINFO = "true"
+
+[build]
+command = "hugo --gc --minify"
+publish = "public"
+```
