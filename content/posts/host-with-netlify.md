@@ -18,7 +18,7 @@ searchHidden: false
 * [x] Summary
   * [x] Article summary describing the purpose and tools/requirements.
 * [ ] Hugo setup
-  * [ ] Git repo init
+  * [x] Git repo init
   * [x] Hugo project init
   * [x] Adding themes
   * [ ] The `hugo.yml` file
