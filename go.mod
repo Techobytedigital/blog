@@ -1,4 +1,4 @@
-module onedev/Techobyte/techobyte-blog
+module github.com/Techobytedigital/blog
 
 go 1.25.5
 
