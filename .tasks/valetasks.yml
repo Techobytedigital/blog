@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+---
+version: "3"
+
+tasks:
+  vale-sync:
+    desc: "Synchronize Vale styles"
+    cmds:
+      - cmd: vale sync
+
+  vale-lint-content:
+    desc: "Lint content/ dir for blog"
+    cmds:
+      - cmd: vale content/
