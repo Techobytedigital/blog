@@ -6,7 +6,7 @@ categories: ["DevOps", "CI/CD"]
 tags: ["git", "netlify", "devops", "ci-cd", "hosting", "cloudflare", "static-site"]
 author: "me"
 description: "Build & deploy a Hugo site from a Github/Gitlab repository and host it on Netlify behind a custom domain (with optional Cloudflare)."
-showToc: false
+showToc: true
 TocOpen: false
 hidemeta: false
 comments: false
