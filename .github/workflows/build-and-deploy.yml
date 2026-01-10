@@ -77,7 +77,7 @@ jobs:
 
   deploy-production:
     needs: [test, deploy-preview]
-    if: needs.test.outputs.success == 'true' && github.ref == 'refs/heads/main'
+    if: needs.test.outputs.success == 'true'
     runs-on: ubuntu-latest
     environment: production
     steps:
