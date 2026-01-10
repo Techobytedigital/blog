@@ -23,6 +23,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Vale prose linting
+        uses: errata-ai/vale-action@v2.1.1
+        with:
+          files: '["content/**.{md}"]'
+
       - name: Setup Hugo
         uses: peaceiris/actions-hugo@v3
         with:
