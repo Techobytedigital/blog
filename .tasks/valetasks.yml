@@ -4,7 +4,11 @@ version: "3"
 
 tasks:
   vale-sync:
-    desc: "Synnchronize Vale styles"
-    dir: styles/
+    desc: "Synchronize Vale styles"
     cmds:
       - cmd: vale sync
+
+  vale-lint-content:
+    desc: "Lint content/ dir for blog"
+    cmds:
+      - cmd: vale content/
