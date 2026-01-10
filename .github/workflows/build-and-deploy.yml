@@ -58,15 +58,24 @@ jobs:
     if: needs.test.outputs.success == 'true'
     runs-on: ubuntu-latest
     steps:
-      - name: Download built site
-        uses: actions/download-artifact@v4
+      - uses: actions/checkout@v4
         with:
-          name: hugo-site
-          path: public
+          fetch-depth: 0
+
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: ${{ env.HUGO_VERSION }}
+          extended: true
+
+      - name: Build preview site
+        run: hugo --gc --minify -b "https://$(echo ${{ github.head_ref || github.ref_name }}--techobyte-blog.netlify.app/)"
 
       - name: Deploy Preview
         uses: nwtgck/actions-netlify@v3
         with:
+          publish-dir: "./public"
+          production-deploy: false
           deploy-message: "Preview PR #${{ github.event.pull_request.number }}"
           enable-pull-request-comment: true
         env:
