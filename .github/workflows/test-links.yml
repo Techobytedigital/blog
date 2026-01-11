@@ -22,11 +22,10 @@ jobs:
         uses: lycheeverse/lychee-action@v1
         with:
           args: >-
-            --verbose
+            --scheme https
             --no-progress
             --exclude-all-private
             --max-concurrency 5
-            --user-agent "Mozilla/5.0 (compatible; Lychee/0.15.0; +https://lychee.cli.rs)"
             "${{ vars.HUGO_BASEURL }}/sitemap.xml"
           format: markdown
           output: lychee-report.md
