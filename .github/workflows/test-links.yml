@@ -21,4 +21,5 @@ jobs:
         with:
           args: >-
             --exclude-all-private
+            --no-progress 
             "${{ vars.HUGO_BASEURL }}"/*
