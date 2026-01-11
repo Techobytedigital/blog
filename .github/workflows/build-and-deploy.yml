@@ -69,7 +69,7 @@ jobs:
           extended: true
 
       - name: Build preview site
-        run: hugo --gc --minify
+        run: hugo --gc --minify -b "pr-${{ github.event.pull_request.number }}--techobyte-blog.netlify.app/"
 
       - name: Install Netlify CLI
         run: npm install -g netlify-cli
