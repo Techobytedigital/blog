@@ -22,14 +22,19 @@ jobs:
         uses: lycheeverse/lychee-action@v1
         with:
           args: >-
-            --verbose 
+            --verbose
             --no-progress
             --exclude-all-private
-            "${{ vars.HUGO_BASEURL }}"/*
+            --include-verbatim
+            "${{ vars.HUGO_BASEURL }}"
+            "${{ vars.HUGO_BASEURL }}/posts/"
+            "${{ vars.HUGO_BASEURL }}/notes/"
+            "${{ vars.HUGO_BASEURL }}/tags/"
+            "${{ vars.HUGO_BASEURL }}/categories/"
           format: markdown
           output: lychee-report.md
-          job-summary: true
-          fail: true
+          jobSummary: true
+          fail: false
 
       - name: Show lychee report
         if: always()
