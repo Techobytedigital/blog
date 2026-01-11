@@ -167,6 +167,10 @@ Create an account on [Netlify](https://netlify.com). During the setup process, y
 
 When you are prompted to input build settings like the base directory/package directory, the build command, the publish directory, etc, leave all of these blank. You can optionally leave the functions directory as `netlify/functions`. If you set values here, the site will fail to build because the `hugo.yml` interferes with these settings. Do your site configuration in `hugo.yml`, not Netlify.
 
+When asked which branch to trigger Netlify deploys on, you have a decision to make: do you want your site to deploy every single time you open a PR to the main branch, including times where you are doing small cleanup chores like updating the `.gitignore`, or setting up a new pipeline? Or do you want to have more control over deploys, i.e. only when merging into a branch named `netlify`?
+
+I chose the latter, and created a `netlify` branch, then configured Netlify to deploy from the `netlify` branch instead of `main`. I also turned off deployment previews, so any PR into `netlify` will trigger a deploy.
+
 ### netlify.toml Config
 
 After finishing the setup, create a `netlify.toml` file in the root of your Hugo repository :
@@ -190,128 +194,7 @@ publish = "public"
 
 This file tells Netlify how to build your Hugo site. Commit it to git with `git add * && git commit -m "Add netlify config"` and push to main with `git push`. Even better, create a new branch before adding/committing your code, i.e. `git switch -c feat/netlify-setup`, then add the files and commit message. When you push, use `git push -u origin feat/netlify-setup`. Merge the branch into the `main` branch in Github.
 
-## Github Action: Publish to Netlify
-
-Before setting up a Github action, you need to do some setup in Github itself. Open the repository's settingss and make the following changes:
-
-* In `Code and Automation > Actions > General`, select `Allow all actions and reusable workflows`
-* In `Code and Automation > Environments`, create a 'production' environment.
-  * In `Environment Secrets`, add the following secrets:
-    * `NETLIFY_AUTH_TOKEN`
-      * API token created on Netlify's site.
-      * Follow the [Netlify docs - Authentication](https://docs.netlify.com/api-and-cli-guides/api-guides/get-started-with-api/#authentication) steps to create an API key for the Github Action.
-    * `NETLIFY_SITE_ID`
-      * Find this in your Netlify project's configuration, under `General > Project details > Project information`.
-      * Use the `Project ID` value.
-  * In `Environment varaibles`, set `HUGO_BASEURL` to your Netlify app URL or your custom domain.
-
-In your local Git repository, create a file at `.github/workflows/build-and-deploy.yml` (you can name the file whatever you want).
-
-```yaml
----
-name: "Netlify Build & Release"
-env:
-  ## https://github.com/gohugoio/hugo/releases
-  HUGO_VERSION: "0.154.3"
-
-on:
-  pull_request:
-    branches: [main]
-    ## Only run on PRs that have a label. Use a conditional in a later step
-    #  to determine if a build/deploy should run on a PR open
-    types: [labeled, synchronize]
-
-permissions:
-  contents: read
-  pull-requests: write
-
-jobs:
-  test:
-    ## Check if PR has 'netlify-release' label
-    if: contains(github.event.pull_request.labels.*.name, 'netlify-release')
-    runs-on: ubuntu-latest
-    outputs:
-      success: ${{ steps.build.outcome == 'success' }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Hugo
-        uses: peaceiris/actions-hugo@v3
-        with:
-          hugo-version: ${{ env.HUGO_VERSION }}
-          extended: true
-
-      - name: Build site
-        id: build
-        run: hugo --gc --minify
-
-      ## Optional: Use lychee to test links in rendered files before deploying
-      # - name: Test links
-      #   uses: lycheeverse/lychee-action@v1
-      #   with:
-      #     args: "public/**/*.html --base-verification false"
-
-      ## Optional: Ensure RSS feed generated correctly
-      # - name: Check RSS
-      #   run: |
-      #     curl --fail -s public/rss.xml | grep -q "${{ vars.HUGO_BASEURL }}" || exit 1
-
-      ## Create pipeline artifact for deploy stage
-      - name: Upload site artifact
-        if: steps.build.outcome == 'success'
-        uses: actions/upload-artifact@v4
-        with:
-          name: hugo-site
-          path: public
-          retention-days: 1
-
-      ## Create a deploy preview in Netlify.
-      #  This is basically a feature environment, which can be promoted to the Production slot.
-      - name: Deploy Preview
-        if: steps.build.outcome == 'success'
-        id: preview
-        uses: nwtgck/actions-netlify@v3
-        with:
-          publish-dir: "./public"
-          production-branch: main
-          deploy-message: "Preview PR #${{ github.event.pull_request.number }}"
-          ## Posts URL as PR comment
-          enable-pull-request-comment: true
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-
-  deploy:
-    needs: test
-    ## Ensure build/test passed, check if PR has 'netlify-release' label
-    if: needs.test.outputs.success == 'true' && contains(github.event.pull_request.labels.*.name, 'netlify-release')
-    runs-on: ubuntu-latest
-    environment: production
-    steps:
-      - name: Download built site
-        uses: actions/download-artifact@v4
-        with:
-          name: hugo-site
-          path: public
-
-      - name: Deploy to Netlify
-        uses: nwtgck/actions-netlify@v3
-        with:
-          publish-dir: "./public"
-          production-branch: main
-          deploy-message: "Deploy from PR #${{ github.event.pull_request.number }}"
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-```
-
-When you want to deploy changes to your live site, create a branch with your changes, and when you open a pull request into the `main` branch, add a label `netlify-release`. Any PR with this label will trigger this Action.
-
-Before completing the pull request, go to `Deploys` in your Netlify project and test the changes in the Deploy Preview environment. When you are satisfied, go back to the pull request in Github and click the link to the deploy pipeline. The pipeline should be paused, waiting for you to approve the release to the Production slot.
-
-## Bonus: A Production Hugo Dockerfile
+## Example Production Hugo Dockerfile
 
 If you plan to host your Hugo site yourself, you can set up a Dockerfile to build your site and serve it behind a proxy like [Caddy](https://caddyserver.com) or [NGINX](https://nginx.org/en/).
 
