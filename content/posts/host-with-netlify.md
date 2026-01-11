@@ -1,7 +1,7 @@
 ---
 title: "Host Hugo with Netlify"
 date: 2026-01-09T01:56:08-05:00
-draft: true
+draft: false
 categories: ["DevOps", "CI/CD"]
 tags: ["git", "netlify", "devops", "ci-cd", "hosting", "cloudflare", "static-site"]
 author: "me"
@@ -257,6 +257,103 @@ When you build the container, you will need to set environment variables for `CA
 
 ```shell
 docker build --build-arg CADDY_EMAIL="youremail@address.com" --build-arg CADDY_SITE_ADDRESS="myblog.com" .
+```
+
+## Check Links with Lychee
+
+[Lychee](https://github.com/lycheeverse/lychee) is a *fast* link checker you can use to check your site for broken links. You can install it locally and point it at your live site, or you can run it against the `public/` directory after Hugo builds to check your links before deploying.
+
+Lychee's syntax is simple:
+
+```shell
+## Check links on your live site
+lychee https://your-site-name.com
+
+## Check links in the public/ directory after a Hugo build
+lychee public/
+```
+
+As a Github action:
+
+```yaml
+---
+name: "Test Blog Links"
+
+on:
+  ## Allow manual runs
+  workflow_dispatch:
+  
+  ## Every 6 hours
+  schedule:
+    - cron: "0 */6 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+    steps:
+      - name: Test live site links
+        uses: lycheeverse/lychee-action@v1
+        with:
+          args: >-
+            --base-verification false 
+            --no-progress 
+            "${{ vars.HUGO_BASEURL }}"/*
+
+```
+
+Or in a full pipeline that builds the site and then tests the `public/` directory (this is useful to do before deploying):
+
+```yaml
+---
+name: "PR checks"
+
+on:
+  pull_request:
+    branches: [netlify]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  HUGO_VERSION: "0.154.3"
+
+jobs:
+  test:
+    name: Build & test Hugo site
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Vale prose linting
+        uses: errata-ai/vale-action@v2.1.1
+        with:
+          files: '["content/**.{md}"]'
+
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: ${{ env.HUGO_VERSION }}
+          extended: true
+
+      - name: Build site
+        run: hugo --gc --minify
+
+      - name: Check links with Lychee
+        uses: lycheeverse/lychee-action@v1
+        with:
+          args: "public/**/*.html --base ."
+          fail: false
 ```
 
 ## Closing
