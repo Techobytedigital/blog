@@ -22,15 +22,19 @@ jobs:
         uses: lycheeverse/lychee-action@v1
         with:
           args: >-
-            --scheme https
+            --verbose
             --no-progress
             --exclude-all-private
             --max-concurrency 5
-            "${{ vars.HUGO_BASEURL }}/sitemap.xml"
+            "${{ vars.HUGO_BASEURL }}"
+            "${{ vars.HUGO_BASEURL }}/posts/"
+            "${{ vars.HUGO_BASEURL }}/notes/"
+            "${{ vars.HUGO_BASEURL }}/tags/"
+            "${{ vars.HUGO_BASEURL }}/categories/"
           format: markdown
           output: lychee-report.md
           jobSummary: true
-          fail: false
+          fail: true
 
       - name: Show lychee report
         if: always()
