@@ -1,0 +1,45 @@
+---
+name: "PR checks"
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  HUGO_VERSION: "0.154.3"
+
+jobs:
+  test:
+    name: Build & test Hugo site
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Vale prose linting
+        uses: errata-ai/vale-action@v2.1.1
+        with:
+          files: '["content/**.{md}"]'
+
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: ${{ env.HUGO_VERSION }}
+          extended: true
+
+      - name: Build site
+        run: hugo --gc --minify
+
+      - name: Check links with Lychee
+        uses: lycheeverse/lychee-action@v1
+        with:
+          args: "public/**/*.html --base ."
+          fail: false
