@@ -18,9 +18,31 @@ jobs:
       group: ${{ github.workflow }}-${{ github.ref }}
     steps:
       - name: Test live site links
+        id: lychee
         uses: lycheeverse/lychee-action@v1
         with:
           args: >-
+            --verbose
+            --format markdown
+            --output lychee-report.md
+            --no-progress
             --exclude-all-private
-            --no-progress 
             "${{ vars.HUGO_BASEURL }}"/*
+          job-summary: true
+
+      - name: Show full lychee report
+        if: always()
+        run: |
+          echo "## Lychee Link Check Results" >> $GITHUB_STEP_SUMMARY
+          echo '```markdown' >> $GITHUB_STEP_SUMMARY
+          cat lychee-report.md >> $GITHUB_STEP_SUMMARY || echo "No report generated"
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Exit Code: ${{ steps.lychee.outputs.exit_code }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload lychee report as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lychee-report
+          path: lychee-report.md
