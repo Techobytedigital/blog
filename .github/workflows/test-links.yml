@@ -20,8 +20,6 @@ jobs:
         uses: lycheeverse/lychee-action@v1
         with:
           args: >-
-            public/**/*.html 
-            --base-url https://techobyte.cc/
-            --exclude-path localhost
             --exclude-all-private
-          fail: true
+            --no-progress 
+            "${{ vars.HUGO_BASEURL }}"/*
