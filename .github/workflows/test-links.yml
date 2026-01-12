@@ -26,6 +26,7 @@ jobs:
             --no-progress
             --exclude-all-private
             --max-concurrency 5
+            --user-agent "TechobyteLinkChecker/1.0 (+https://techobyte.cc/)"
             "${{ vars.HUGO_BASEURL }}"
             "${{ vars.HUGO_BASEURL }}/posts/"
             "${{ vars.HUGO_BASEURL }}/notes/"
