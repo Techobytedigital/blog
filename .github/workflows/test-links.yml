@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: read
+  issues: write
 
 jobs:
   test:
@@ -17,9 +18,36 @@ jobs:
       group: ${{ github.workflow }}-${{ github.ref }}
     steps:
       - name: Test live site links
+        id: lychee
         uses: lycheeverse/lychee-action@v1
         with:
           args: >-
-            --base-verification false 
-            --no-progress 
-            "${{ vars.HUGO_BASEURL }}"/*
+            --verbose
+            --no-progress
+            --exclude-all-private
+            --max-concurrency 5
+            --user-agent "TechobyteLinkChecker/1.0 (+https://techobyte.cc/)"
+            "${{ vars.HUGO_BASEURL }}"
+            "${{ vars.HUGO_BASEURL }}/posts/"
+            "${{ vars.HUGO_BASEURL }}/notes/"
+            "${{ vars.HUGO_BASEURL }}/tags/"
+            "${{ vars.HUGO_BASEURL }}/categories/"
+          format: markdown
+          output: lychee-report.md
+          jobSummary: true
+          fail: true
+
+      - name: Show lychee report
+        if: always()
+        run: |
+          echo "## Lychee Results" >> $GITHUB_STEP_SUMMARY
+          echo '```markdown' >> $GITHUB_STEP_SUMMARY
+          cat lychee-report.md >> $GITHUB_STEP_SUMMARY || true
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload lychee report as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lychee-report
+          path: lychee-report.md
