@@ -11,7 +11,7 @@ tasks:
       - >
         lychee
         public/**/*.html
-        --base-url https://techobyte.cc
+        --base-url {{.HUGO_BASEURL}}
         --exclude-all-private
 
   check-live:
@@ -21,3 +21,10 @@ tasks:
         lychee
         "{{.HUGO_BASEURL}}"
         --exclude-all-private
+        --max-concurrency 5
+        --user-agent "TechobyteLinkChecker/1.0 (+{{.HUGO_BASEURL}})"
+        "{{.HUGO_BASEURL}}"
+        "{{.HUGO_BASEURL}}/posts/"
+        "{{.HUGO_BASEURL}}/notes/"
+        "{{.HUGO_BASEURL}}/tags/"
+        "{{.HUGO_BASEURL}}/categories/"
