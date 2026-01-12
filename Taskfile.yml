@@ -6,6 +6,7 @@ includes:
   docker: .tasks/dockertasks.yml
   _hugo: .tasks/hugotasks.yml
   _vale: .tasks/valetasks.yml
+  _lychee: .tasks/lycheetasks.yml
 
 tasks:
   build:prod:
@@ -62,3 +63,22 @@ tasks:
     desc: Run vale on content/ dir
     cmds:
       - task: _vale:vale-lint-content
+
+  lychee:check-public:
+    desc: Run lychee on local public/ directory.
+    vars:
+      HUGO_BASEURL: "http://localhost:1313/"
+    cmds:
+      - task: _hugo:build
+      - task: _lychee:check-public
+        vars:
+          HUGO_BASEURL: "{{.HUGO_BASEURL}}"
+
+  lychee:check:
+    desc: Run lychee on the live site
+    vars:
+      HUGO_BASEURL: "https://techobyte.cc/"
+    cmds:
+      - task: _lychee:check-live
+        vars:
+          HUGO_BASEURL: "{{.HUGO_BASEURL}}"
