@@ -1,0 +1,58 @@
+---
+name: Hugo Deploy
+on:
+  pull_request:
+    branches: [main]
+    types: [synchronize, closed]
+    paths:
+      - "content/**"
+      - "config/**"
+      - "layouts/**"
+      - "static/**"
+      - "themes/**"
+      - "netlify.toml"
+      - "hugo.*"
+      - ".github/workflows/**"
+
+env:
+  HUGO_VERSION: "0.154.3"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    ## Skip if PR not merged, run on sync for previews
+    if: |
+      (github.event.pull_request.merged == true) ||
+      (github.event.action == 'synchronize')
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ## Use latest from PR head or merged main
+          ref: ${{ github.head_ref || 'main' }}
+          fetch-depth: 0
+
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: ${{ env.HUGO_VERSION }}
+
+      - name: Deploy to deploy branch
+        run: |
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
+
+          rm -rf public/
+          hugo --minify
+
+          git add public/
+          if git diff --staged --quiet; then
+            echo "No changes, skipping"
+            exit 0
+          fi
+
+          git checkout -B deploy
+          git add public/
+          git rm -rf .
+          git commit -m "Deploy Hugo site [skip ci]"
+          git push origin deploy --force || git push origin deploy
