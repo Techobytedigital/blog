@@ -1,0 +1,30 @@
+---
+version: "3"
+
+vars:
+  HUGO_BASEURL: '{{default "http://localhost:1313/" .HUGO_BASEURL}}'
+
+tasks:
+  check-public:
+    desc: "Run lychee on rendered files in public/ directory"
+    cmds:
+      - >
+        lychee
+        public/**/*.html
+        --base-url {{.HUGO_BASEURL}}
+        --exclude-all-private
+
+  check-live:
+    desc: "Run lychee on the live site"
+    cmds:
+      - >
+        lychee
+        "{{.HUGO_BASEURL}}"
+        --exclude-all-private
+        --max-concurrency 5
+        --user-agent "TechobyteLinkChecker/1.0 (+{{.HUGO_BASEURL}})"
+        "{{.HUGO_BASEURL}}"
+        "{{.HUGO_BASEURL}}/posts/"
+        "{{.HUGO_BASEURL}}/notes/"
+        "{{.HUGO_BASEURL}}/tags/"
+        "{{.HUGO_BASEURL}}/categories/"
