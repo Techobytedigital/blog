@@ -6,14 +6,13 @@ on:
     branches: [main]
     types: [opened, reopened, synchronize, closed]
     paths:
+      - "archetypes/**"
+      - "assets/**"
       - "content/**"
-      - "config/**"
       - "layouts/**"
       - "static/**"
-      - "themes/**"
-      - "netlify.toml"
-      - "hugo.*"
-      - ".github/workflows/**"
+      - "hugo.yml"
+      - ".github/workflows/hugo-deploy.yml"
 
 permissions:
   contents: read
@@ -24,11 +23,14 @@ env:
   HUGO_VERSION: "0.154.3"
 
 jobs:
-  ## Only runs on PR open/sync/reopen, builds & uploads artifact
+  ## Only runs on PR open/sync/reopen, when any Hugo file has changed
   test:
     name: "Build & test Hugo site"
     runs-on: ubuntu-latest
-    if: github.event.action == 'opened' || github.event.action == 'synchronize' || github.event.action == 'reopened'
+    if: |
+      (github.event.action == 'opened' || 
+       github.event.action == 'synchronize' || 
+       github.event.action == 'reopened')
 
     steps:
       - name: Checkout
@@ -65,15 +67,14 @@ jobs:
           path: public/
           retention-days: 1
 
-  ## Only runs on PR merge, uses artifact built in last stage
   deploy:
     name: "Deploy Hugo site"
     runs-on: ubuntu-latest
-    ## Deploy when PR with 'netlify-release' label is closed
+    ## Deploy when PR with netlify-release label is merged into main
     if: |
       github.event.action == 'closed' &&
       github.event.pull_request.merged == true &&
-      contains(fromJson(github.event.pull_request.labels), 'netlify-release')
+      contains(github.event.pull_request.labels.*.name, 'netlify-release')
 
     steps:
       - name: Checkout
@@ -92,13 +93,9 @@ jobs:
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
 
-          ## Force add ignored public/ directory
-          git config core.sparseCheckout true
-          echo "public/*" > .git/info/sparse-checkout
-
           git checkout -B deploy || git checkout -b deploy
           git rm -rf . || true
           cp -r public/* . || true
-          git add .
+          git add . || true
           git commit --allow-empty -m "Deploy Hugo site [skip ci]"
           git push origin deploy --force-with-lease
