@@ -70,7 +70,8 @@ jobs:
     name: "Deploy Hugo site"
     runs-on: ubuntu-latest
     needs: test
-    if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true &&
+      contains(github.event.pull_request.labels.*.name, 'netlify-release') # Only deploy if PR has 'netlify-release' label
 
     steps:
       - name: Checkout
