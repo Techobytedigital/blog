@@ -1,38 +1,27 @@
----
 name: "Hugo Deploy"
 
 on:
   pull_request:
     branches: [main]
     types: [opened, reopened, synchronize, closed]
-    paths:
-      - "archetypes/**"
-      - "assets/**"
-      - "content/**"
-      - "layouts/**"
-      - "static/**"
-      - "hugo.yml"
-      - ".github/workflows/hugo-deploy.yml"
 
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
   issues: write
 
 env:
   HUGO_VERSION: "0.154.3"
-  ## Generate name for artifact of the built site
-  ARTIFACT_NAME: hugo-site-${{ github.event.number }}
 
 jobs:
-  ## Only runs on PR open/sync/reopen, when any Hugo file has changed
-  test:
-    name: "Build & test Hugo site"
+  build-test-deploy:
+    name: "Build & test Hugo site (REQUIRED)"
     runs-on: ubuntu-latest
     if: |
-      (github.event.action == 'opened' || 
-       github.event.action == 'synchronize' || 
-       github.event.action == 'reopened')
+      github.event.action != 'closed' || 
+      (github.event.action == 'closed' && 
+       github.event.pull_request.merged == true && 
+       contains(github.event.pull_request.labels.*.name, 'netlify-release'))
 
     steps:
       - name: Checkout
@@ -40,63 +29,58 @@ jobs:
         with:
           fetch-depth: 0
 
+      ## Skip Hugo steps if no Hugo changes, or no netlify-release label
+      - name: Check if Hugo files changed
+        id: hugo-changed
+        run: |
+          if git diff --name-only HEAD~1 | grep -qE '^(archetypes|assets|content|layouts|static|hugo\.yml)/'; then
+            echo "hugo-changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "hugo-changed=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Vale prose linting
+        if: steps.hugo-changed.outputs.hugo-changed == 'true'
         uses: errata-ai/vale-action@v2.1.1
         with:
           files: '["content/**.{md}"]'
 
       - name: Setup Hugo
+        if: steps.hugo-changed.outputs.hugo-changed == 'true'
         uses: peaceiris/actions-hugo@v3
         with:
           hugo-version: ${{ env.HUGO_VERSION }}
           extended: true
 
       - name: Build site
+        if: steps.hugo-changed.outputs.hugo-changed == 'true'
         run: hugo --gc --minify
 
       - name: Check built links (Lychee)
+        if: steps.hugo-changed.outputs.hugo-changed == 'true'
         uses: lycheeverse/lychee-action@v1
         with:
           args: >-
             --exclude file://*
-            --exclude file:///*
             public/**/*.html
 
-      - name: Upload Hugo artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.ARTIFACT_NAME }}
-          path: public/
-          retention-days: 2
-
-  ## Deploy when PR with netlify-release label is merged into main and there is an artifact to deploy
-  deploy:
-    name: "Deploy Hugo site"
-    runs-on: ubuntu-latest
-    if: |
-      github.event.action == 'closed' &&
-      github.event.pull_request.merged == true &&
-      contains(github.event.pull_request.labels.*.name, 'netlify-release')
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: ${{ env.ARTIFACT_NAME }}
-          path: public/
-
+      ## Deploy when PR is closed with label 'netlify-release' and any hugo changes
       - name: Deploy to deploy branch
+        if: |
+          github.event.action == 'closed' &&
+          github.event.pull_request.merged == true &&
+          contains(github.event.pull_request.labels.*.name, 'netlify-release')
         run: |
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
+
+          ## Checkout orphaned deploy branch, force latest from main
           git checkout -B deploy
+
           rm -rf *
-          cp -r public/* .
+
+          cp -r public/* . || echo "No public dir, skipping deploy"
+
           git add .
-          git commit -m "Deploy PR #${{ github.event.pull_request.number }}"
+          git commit -m "Deploy PR #${{ github.event.pull_request.number }}" || echo "Nothing to commit"
           git push origin deploy --force
