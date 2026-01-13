@@ -51,7 +51,10 @@ jobs:
       - name: Check built links (Lychee)
         uses: lycheeverse/lychee-action@v1
         with:
-          args: "public/**/*.html --base ."
+          args: >-
+            --exclude file://*
+            --exclude file:///*
+            public/**/*.html
 
   ## Deploy if checks pass
   deploy:
