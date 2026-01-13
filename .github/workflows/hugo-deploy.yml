@@ -12,6 +12,7 @@ on:
       - "layouts/**"
       - "static/**"
       - "hugo.yml"
+      - ".github/workflows/hugo-deploy.yml"
 
 permissions:
   contents: read
