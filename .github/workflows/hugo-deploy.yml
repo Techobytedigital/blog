@@ -1,4 +1,3 @@
----
 name: "Hugo Deploy"
 
 on:
@@ -6,14 +5,12 @@ on:
     branches: [main]
     types: [opened, reopened, synchronize, closed]
     paths:
+      - "archetypes/**"
+      - "assets/**"
       - "content/**"
-      - "config/**"
       - "layouts/**"
       - "static/**"
-      - "themes/**"
-      - "netlify.toml"
-      - "hugo.*"
-      - ".github/workflows/**"
+      - "hugo.yml"
 
 permissions:
   contents: read
@@ -24,7 +21,7 @@ env:
   HUGO_VERSION: "0.154.3"
 
 jobs:
-  ## Only runs on PR open/sync/reopen, builds & uploads artifact
+  ## Only runs on PR open/sync/reopen, and when any Hugo file has changed
   test:
     name: "Build & test Hugo site"
     runs-on: ubuntu-latest
@@ -65,7 +62,6 @@ jobs:
           path: public/
           retention-days: 1
 
-  ## Only runs on PR merge, uses artifact built in last stage
   deploy:
     name: "Deploy Hugo site"
     runs-on: ubuntu-latest
@@ -92,13 +88,9 @@ jobs:
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
 
-          ## Force add ignored public/ directory
-          git config core.sparseCheckout true
-          echo "public/*" > .git/info/sparse-checkout
-
           git checkout -B deploy || git checkout -b deploy
           git rm -rf . || true
           cp -r public/* . || true
-          git add .
+          git add . || true
           git commit --allow-empty -m "Deploy Hugo site [skip ci]"
           git push origin deploy --force-with-lease
