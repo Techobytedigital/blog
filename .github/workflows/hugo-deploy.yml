@@ -1,3 +1,4 @@
+---
 name: "Hugo Deploy"
 
 on:
@@ -21,11 +22,14 @@ env:
   HUGO_VERSION: "0.154.3"
 
 jobs:
-  ## Only runs on PR open/sync/reopen, and when any Hugo file has changed
+  ## Only runs on PR open/sync/reopen, when any Hugo file has changed
   test:
     name: "Build & test Hugo site"
     runs-on: ubuntu-latest
-    if: github.event.action == 'opened' || github.event.action == 'synchronize' || github.event.action == 'reopened'
+    if: |
+      (github.event.action == 'opened' || 
+       github.event.action == 'synchronize' || 
+       github.event.action == 'reopened')
 
     steps:
       - name: Checkout
@@ -65,11 +69,11 @@ jobs:
   deploy:
     name: "Deploy Hugo site"
     runs-on: ubuntu-latest
-    ## Deploy when PR with 'netlify-release' label is closed
+    ## Deploy when PR with netlify-release label is merged into main
     if: |
       github.event.action == 'closed' &&
       github.event.pull_request.merged == true &&
-      contains(fromJson(github.event.pull_request.labels), 'netlify-release')
+      contains(github.event.pull_request.labels.*.name, 'netlify-release')
 
     steps:
       - name: Checkout
