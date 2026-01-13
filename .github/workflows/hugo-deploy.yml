@@ -27,7 +27,7 @@ env:
 jobs:
   ## Only runs on PR open/sync/reopen, when any Hugo file has changed
   test:
-    name: "Build & test Hugo site (REQUIRED)"
+    name: "Build & test Hugo site"
     runs-on: ubuntu-latest
     if: |
       (github.event.action == 'opened' || 
